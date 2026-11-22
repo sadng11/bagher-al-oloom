@@ -1,0 +1,128 @@
+.tp-bgimg {
+    border-radius: 0% 0% 25% 25%;
+    height: 90% !important;
+}
+
+.tp-revslider-slidesli {
+    background-color: #ffffff !important;
+    background-image: url("../png/asfalt-dark.png") !important;
+}
+
+.service-detail-header {
+    background-size: 100% 100% !important;
+    background-attachment: unset !important;
+}
+
+
+.book-content {
+    text-align: justify;
+    color: #000000;
+}
+
+.hilight, .finded {
+    background: #cccccc;
+}
+
+/*.book-content p{*/
+/*    line-height: 2;*/
+/*}*/
+/*.book-content *{*/
+/*    font-size: 1rem;*/
+/*}*/
+.tools {
+    position: fixed;
+    width: 100%;
+    height: 4rem;
+    bottom: 0;
+    background: #ffffff;
+    right: 0;
+    left: 0;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    flex-direction: row;
+    z-index: 1;
+}
+
+.setting-table table, tr, td, blockquote {
+    color: #000000;
+    font-size: 1rem;
+}
+
+.book-line-content p {
+    line-height: unset;
+    font-size: unset;
+    padding: 10px;
+}
+
+.setting-table td p {
+    line-height: unset;
+    font-size: unset;
+}
+
+.btn-background-content {
+    padding: 15px;
+}
+
+.search-area {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.search-result-ul {
+    list-style: circle;
+    padding: 1rem;
+}
+
+.search-result-ul li {
+    margin-top: 10px;
+}
+
+.btn-sound-download {
+    width: 100%;
+    padding-bottom: 10px;
+    padding-top: 10px;
+}
+
+.footer_text {
+    padding-top: 1rem;
+}
+
+.search-content {
+    margin-top: 1rem;
+}
+
+.active_search {
+    color: #752727;
+    background: #ffbd40;
+    border-radius: 0.5rem;
+    outline: 3px solid rgba(117, 39, 39, 0.35);
+    scroll-margin-top: 6rem;
+}
+
+.search-target-match {
+    color: #5d1b1b;
+    background: #fff176;
+    border-radius: 0.2rem;
+    padding: 0 0.12rem;
+}
+
+.repeat-text {
+    position: absolute;
+    width: 100%;
+    bottom: 10px;
+    /*margin-left: 100px;*/
+    /*margin-right: 100px;*/
+}
+
+.marquee {
+    width: 100%;
+    overflow: hidden;
+}
+ul.marquee li {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 1.2rem;
+}

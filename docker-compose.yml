@@ -1,0 +1,19 @@
+services:
+  app-begher:
+    build:
+      context: /data/php/bagher
+      dockerfile: Dockerfile
+    container_name: app-begher
+    working_dir: /var/www/html
+    command: php artisan serve --host=0.0.0.0 --port=7000
+    ports:
+      - "7000:7000"
+    volumes:
+      - /data/php/bagher:/var/www/html
+    networks:
+      - pg-db
+    restart: unless-stopped
+
+networks:
+  pg-db:
+    external: true
