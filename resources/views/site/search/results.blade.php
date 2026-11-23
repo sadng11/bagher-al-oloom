@@ -42,7 +42,7 @@
                         <div class="col-md-12 col-sm-12">
                             <div class="form-group">
                                 <label for="name1" class="d-none"></label>
-                                {{ Form::text('q',null, ['class'=>'form-control','id'=>'name1','placeholder'=>'عبارت خود را وارد نمایید','required']) }}
+                                {{ Form::text('q', $search ?? request('q'), ['class'=>'form-control','id'=>'name1','placeholder'=>'عبارت خود را وارد نمایید','required']) }}
                             </div>
                         </div>
                         <div class="col-md-12 col-sm-12">

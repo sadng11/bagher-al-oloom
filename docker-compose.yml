@@ -1,7 +1,7 @@
 services:
   app-begher:
     build:
-      context: /data/php/bagher
+      context: .
       dockerfile: Dockerfile
     container_name: app-begher
     working_dir: /var/www/html
@@ -9,11 +9,22 @@ services:
     ports:
       - "7000:7000"
     volumes:
-      - /data/php/bagher:/var/www/html
-    networks:
-      - pg-db
+      - .:/var/www/html
+    depends_on:
+      - db
     restart: unless-stopped
 
-networks:
-  pg-db:
-    external: true
+  db:
+    image: mysql:8.0
+    container_name: bagher-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: laravel
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+
+volumes:
+  dbdata:
