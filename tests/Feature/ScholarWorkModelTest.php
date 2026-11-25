@@ -245,7 +245,7 @@ class ScholarWorkModelTest extends TestCase
             'downloads' => 8,
         ]);
 
-        ScholarWork::create([
+        $third = ScholarWork::create([
             'title' => 'متن نامرتبط',
             'author_name' => 'مولف دیگر',
             'views' => 100,
@@ -263,5 +263,141 @@ class ScholarWorkModelTest extends TestCase
         $invalidDirectionResult = Book::getScholarWorks('   ', 'title', 'sideways', 2);
         $this->assertSame(3, $invalidDirectionResult->total());
         $this->assertCount(2, $invalidDirectionResult->items());
+        $this->assertSame([$second->id, $third->id], $invalidDirectionResult->pluck('id')->all());
+    }
+
+    public function test_book_saving_clears_writer_id_when_section_is_scholar(): void
+    {
+        $writer = Writer::create([
+            'name' => 'شیخ',
+            'nickname' => 'صدوق',
+        ]);
+
+        $created = Book::create([
+            'section' => Book::SECTION_SCHOLAR,
+            'writer_id' => $writer->id,
+            'title' => 'رساله اعتقادات',
+            'author_name' => 'شیخ صدوق',
+        ]);
+
+        $this->assertSame(Book::SECTION_SCHOLAR, $created->section);
+        $this->assertNull($created->writer_id);
+        $this->assertNull($created->fresh()->writer_id);
+
+        $writerBook = Book::create([
+            'writer_id' => $writer->id,
+            'title' => 'کتاب اولیه نویسنده',
+        ]);
+
+        $this->assertSame($writer->id, $writerBook->writer_id);
+
+        $writerBook->update([
+            'section' => Book::SECTION_SCHOLAR,
+            'writer_id' => $writer->id,
+            'author_name' => 'محقق منتقل‌شده',
+        ]);
+
+        $writerBook->refresh();
+        $this->assertSame(Book::SECTION_SCHOLAR, $writerBook->section);
+        $this->assertNull($writerBook->writer_id);
+    }
+
+    public function test_writer_delete_cascades_to_linked_books_without_affecting_scholar_works(): void
+    {
+        $writer = Writer::create([
+            'name' => 'علامه',
+            'nickname' => 'مجلسی',
+        ]);
+
+        $writerBook = Book::create([
+            'writer_id' => $writer->id,
+            'title' => 'بحارالانوار',
+        ]);
+
+        $scholarWork = ScholarWork::create([
+            'title' => 'مقاله مستقل محقق',
+            'author_name' => 'آیت‌الله محقق',
+        ]);
+
+        $writer->delete();
+
+        $this->assertDatabaseMissing('writers', ['id' => $writer->id]);
+        $this->assertDatabaseMissing('books', ['id' => $writerBook->id]);
+        $this->assertDatabaseHas('books', [
+            'id' => $scholarWork->id,
+            'section' => Book::SECTION_SCHOLAR,
+            'writer_id' => null,
+        ]);
+    }
+
+    public function test_get_scholar_works_orders_tied_values_deterministically_by_id_desc_across_pagination(): void
+    {
+        $distinct = ScholarWork::create([
+            'title' => 'اثر مجزا',
+            'author_name' => 'الف',
+            'views' => 10,
+            'downloads' => 1,
+        ]);
+
+        $tie1 = ScholarWork::create([
+            'title' => 'اثر یکم',
+            'author_name' => 'ب',
+            'views' => 100,
+            'downloads' => 5,
+        ]);
+
+        $tie2 = ScholarWork::create([
+            'title' => 'اثر دوم',
+            'author_name' => 'ب',
+            'views' => 100,
+            'downloads' => 5,
+        ]);
+
+        $tie3 = ScholarWork::create([
+            'title' => 'اثر سوم',
+            'author_name' => 'ب',
+            'views' => 100,
+            'downloads' => 5,
+        ]);
+
+        try {
+            request()->query->set('page', 1);
+            $this->assertSame(
+                [$distinct->id, $tie3->id],
+                Book::getScholarWorks(null, 'author_name', 'asc', 2)->pluck('id')->all()
+            );
+            $this->assertSame(
+                [$tie3->id, $tie2->id],
+                Book::getScholarWorks(null, 'author_name', 'desc', 2)->pluck('id')->all()
+            );
+            $this->assertSame(
+                [$distinct->id, $tie3->id],
+                Book::getScholarWorks(null, 'views', 'asc', 2)->pluck('id')->all()
+            );
+            $this->assertSame(
+                [$tie3->id, $tie2->id],
+                Book::getScholarWorks(null, 'views', 'desc', 2)->pluck('id')->all()
+            );
+
+            request()->query->set('page', 2);
+            $this->assertSame(
+                [$tie2->id, $tie1->id],
+                Book::getScholarWorks(null, 'author_name', 'asc', 2)->pluck('id')->all()
+            );
+            $this->assertSame(
+                [$tie1->id, $distinct->id],
+                Book::getScholarWorks(null, 'author_name', 'desc', 2)->pluck('id')->all()
+            );
+            $this->assertSame(
+                [$tie2->id, $tie1->id],
+                Book::getScholarWorks(null, 'views', 'asc', 2)->pluck('id')->all()
+            );
+            $this->assertSame(
+                [$tie1->id, $distinct->id],
+                Book::getScholarWorks(null, 'views', 'desc', 2)->pluck('id')->all()
+            );
+        } finally {
+            request()->query->remove('page');
+        }
     }
 }

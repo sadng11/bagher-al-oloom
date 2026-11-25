@@ -20,7 +20,7 @@ class ScholarWorkContent extends Resource
      *
      * @var array
      */
-    public static $with = ['book'];
+    public static $with = ['book', 'scholarWork'];
 
     /**
      * Get the book section owned by this resource.

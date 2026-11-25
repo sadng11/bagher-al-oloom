@@ -71,8 +71,8 @@
                                     </div>
                                 </div>
                                 <div class="card-footer text-muted d-flex justify-content-between align-items-center small">
-                                    <span><i class="fa fa-eye me-1"></i> بازدید: {{ number_format($item->views) }}</span>
-                                    <span><i class="fa fa-download me-1"></i> دانلود: {{ number_format($item->downloads) }}</span>
+                                    <span><i class="fa fa-eye me-1"></i> بازدید: {{ number_format((int) $item->views) }}</span>
+                                    <span><i class="fa fa-download me-1"></i> دانلود: {{ number_format((int) $item->downloads) }}</span>
                                 </div>
                             </div>
                         </a>

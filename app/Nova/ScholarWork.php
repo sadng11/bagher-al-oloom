@@ -89,7 +89,7 @@ class ScholarWork extends Resource
                 ->acceptedTypes('.docx')
                 ->rules('required'),
             Boolean::make(__('Has Pdf File'), function ($model) {
-                return $model->pdf_file != null;
+                return filled($model->pdf_file);
             })->onlyOnIndex(),
             Number::make(__('Views'), 'views')->exceptOnForms()->sortable(),
             Number::make(__('Downloads'), 'downloads')->exceptOnForms()->sortable(),

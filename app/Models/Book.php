@@ -39,6 +39,12 @@ class Book extends Model
                 $book->section = self::SECTION_WRITER;
             }
         });
+
+        static::saving(function (self $book): void {
+            if ($book->section === self::SECTION_SCHOLAR) {
+                $book->writer_id = null;
+            }
+        });
     }
 
     public function writer(): BelongsTo
@@ -153,6 +159,12 @@ class Book extends Model
             });
         }
 
-        return $query->orderBy($column, $direction)->paginate(max(1, $perPage));
+        $query->orderBy($column, $direction);
+
+        if ($column !== 'id') {
+            $query->orderBy('id', 'desc');
+        }
+
+        return $query->paginate(max(1, $perPage));
     }
 }

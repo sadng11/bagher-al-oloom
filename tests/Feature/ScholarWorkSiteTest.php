@@ -27,6 +27,14 @@ class ScholarWorkSiteTest extends TestCase
             2,
             substr_count($response->getContent(), 'آثار علما و محققین')
         );
+
+        $scholarWorksHref = route('scholar_works.index');
+        $anchorCount = preg_match_all(
+            '/<a\b[^>]*\bhref="' . preg_quote($scholarWorksHref, '/') . '"[^>]*>/',
+            $response->getContent()
+        );
+
+        $this->assertGreaterThanOrEqual(2, $anchorCount);
     }
 
     public function test_scholar_works_index_lists_only_scholar_section_works_with_author_and_stats(): void
@@ -349,5 +357,36 @@ class ScholarWorkSiteTest extends TestCase
             ->assertJsonCount(2)
             ->assertJsonPath('0.book.id', $writerBook->id)
             ->assertJsonPath('1.book.id', $scholarWork->id);
+    }
+
+    public function test_scholar_works_index_orders_tied_sort_values_deterministically_across_pages(): void
+    {
+        $works = [];
+        for ($i = 1; $i <= 16; $i++) {
+            $works[] = ScholarWork::create([
+                'title' => sprintf('اثر هم‌رتبه %02d', $i),
+                'author_name' => 'محقق یکسان',
+                'views' => 100,
+                'downloads' => 10,
+            ]);
+        }
+
+        $expectedDescIds = collect($works)->pluck('id')->reverse()->values();
+        $pageOneExpectedTitles = $expectedDescIds->take(15)->map(
+            fn (int $id): string => ScholarWork::findOrFail($id)->title
+        )->all();
+        $pageTwoExpectedTitle = ScholarWork::findOrFail($expectedDescIds->last())->title;
+
+        foreach (['+author_name', '-views'] as $sort) {
+            $pageOne = $this->get('/scholars-works?sort=' . urlencode($sort) . '&page=1');
+            $pageOne->assertOk()
+                ->assertSeeInOrder($pageOneExpectedTitles)
+                ->assertDontSee($pageTwoExpectedTitle);
+
+            $pageTwo = $this->get('/scholars-works?sort=' . urlencode($sort) . '&page=2');
+            $pageTwo->assertOk()
+                ->assertSee($pageTwoExpectedTitle)
+                ->assertDontSee($pageOneExpectedTitles[0]);
+        }
     }
 }
