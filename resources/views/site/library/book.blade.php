@@ -1,5 +1,27 @@
 @extends('site.app')
-@section('title','کتاب '.$data['book']->title.' اثر '.$data['book']->writer->full_name)
+@php
+    $book = $data['book'];
+    $author = trim((string) $book->display_author);
+    $pageTitle = 'کتاب ' . $book->title . ($author !== '' ? ' اثر ' . $author : '');
+
+    if ($book->isScholarWork()) {
+        $crumbData = [
+            route('scholar_works.index') => 'آثار علما و محققین',
+            $author !== '' ? $author : $book->title,
+        ];
+    } elseif ($book->writer) {
+        $crumbData = [
+            route('library') => 'کتابخانه',
+            route('library.writer', ['id' => $book->writer->id]) => ' کتب ' . $book->writer->full_name,
+        ];
+    } else {
+        $crumbData = [
+            route('library') => 'کتابخانه',
+            $author !== '' ? $author : $book->title,
+        ];
+    }
+@endphp
+@section('title', $pageTitle)
 @section('content')
     <section id="main-banner-page"
              class="position-relative page-header service-detail-header section-nav-smooth parallax">
@@ -14,8 +36,8 @@
             <div class="gradient-bg title-wrap">
                 <div class="row">
                     <div class="col-lg-12 col-md-12 whitecolor">
-                        <h3 class="float-end"> {{$data['book']->title}}</h3>
-                        @include('site.partials.breadcrumb', ['crumb_data'=>[route('library')=>'کتابخانه',route('library.writer',['id'=>$data['book']->writer->id])=>' کتب '.$data['book']->writer->full_name]])
+                        <h3 class="float-end"> {{ $book->title }}</h3>
+                        @include('site.partials.breadcrumb', ['crumb_data' => $crumbData])
                     </div>
                 </div>
             </div>

@@ -5,6 +5,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ContentController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LibraryController;
+use App\Http\Controllers\ScholarWorkController;
 use App\Http\Controllers\SoundController;
 use App\Services\SearchHighlighter;
 use App\Services\SearchService;
@@ -30,6 +31,7 @@ Route::get('library/writer/{id}', [LibraryController::class, 'writer'])->name('l
 Route::get('library/book/{id}', [LibraryController::class, 'book'])->name('library.book');
 Route::get('library/book/content/{id}', [LibraryController::class, 'content'])->name('library.content');
 Route::get('library/book/download/{book_id}', [LibraryController::class, 'download'])->name('library.download');
+Route::get('scholars-works', [ScholarWorkController::class, 'index'])->name('scholar_works.index');
 Route::get('sound/category/', [SoundController::class, 'index'])->name('sound_category');
 Route::get('sound/{id}', [SoundController::class, 'show'])->name('sound.detail');
 Route::get('sound/category/{id}', [SoundController::class, 'show_category'])->name('sound_category.detail');

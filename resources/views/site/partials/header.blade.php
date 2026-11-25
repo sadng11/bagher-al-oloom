@@ -23,6 +23,9 @@
                         <a class="nav-link" href="{{route('library',['sort'=>'-id'])}}">کتابخانه</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="{{route('scholar_works.index')}}">آثار علما و محققین</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="{{route('sound_category',['sort'=>'-id'])}}">مدرس مهدیه باقر
                             العلوم</a>
                     </li>
@@ -64,6 +67,9 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{route('library',['sort'=>'-id'])}}">کتابخانه</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{route('scholar_works.index')}}">آثار علما و محققین</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{route('sound_category',['sort'=>'-id'])}}">مدرس مهدیه باقر
