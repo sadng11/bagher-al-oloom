@@ -91,6 +91,20 @@ class BookContent extends Resource
     }
 
     /**
+     * Build an "index" query for the given resource.
+     *
+     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public static function indexQuery(NovaRequest $request, $query)
+    {
+        return $query->whereHas('book', function ($bookQuery) {
+            $bookQuery->where($bookQuery->qualifyColumn('section'), \App\Models\Book::SECTION_WRITER);
+        });
+    }
+
+    /**
      * Get the fields displayed by the resource.
      *
      * @param \Laravel\Nova\Http\Requests\NovaRequest $request

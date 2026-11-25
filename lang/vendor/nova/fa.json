@@ -510,5 +510,11 @@
     "Text": "متن",
     "help writer name": "نام کامل نویسنده مانند : عالم ربانی و حکیم محمد صمدانی مرحوم آقای حاج شیخ احمد اسحایی",
     "help writer nickname": "لقب نویسنده مانند : اعلی الله مقامه",
-    "Title": "عنوان"
+    "Title": "عنوان",
+    "Scholar Works": "آثار علما و محققین",
+    "Scholar Work": "اثر علما و محققین",
+    "Scholar Work Contents": "محتوای آثار علما و محققین",
+    "Scholar Work Content": "محتوای اثر علما و محققین",
+    "Author Name": "نام صاحب اثر",
+    "help scholar author name": "نام کامل صاحب اثر یا محقق را وارد نمایید"
 }

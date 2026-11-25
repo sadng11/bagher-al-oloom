@@ -37,6 +37,7 @@ class   NovaServiceProvider extends NovaApplicationServiceProvider
         Nova::enableRTL();
 //        Nova::withBreadcrumbs();
         Observable::make(Book::class, BookObserver::class);
+        Observable::make(\App\Models\ScholarWork::class, BookObserver::class);
 
         Nova::footer(function ($request) {
             return Blade::render('
@@ -56,6 +57,7 @@ class   NovaServiceProvider extends NovaApplicationServiceProvider
                 MenuSection::make(__('Content & Book'), [
                     MenuItem::resource(\App\Nova\Book::class),
                     MenuItem::resource(\App\Nova\BookContent::class),
+                    MenuItem::resource(\App\Nova\ScholarWork::class),
                     MenuItem::resource(Writer::class),
                     MenuItem::resource(SoundCategory::class),
                     MenuItem::resource(Sound::class),
