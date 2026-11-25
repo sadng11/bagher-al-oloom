@@ -2,26 +2,67 @@
 
 namespace App\Models;
 
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Book extends Model
 {
     use HasFactory;
 
+    public const SECTION_WRITER = 'writer';
+    public const SECTION_SCHOLAR = 'scholar';
+
+    protected $fillable = [
+        'title',
+        'writer_id',
+        'section',
+        'author_name',
+        'file',
+        'pdf_file',
+        'views',
+        'downloads',
+    ];
+
     protected $appends = [
         'downloadable', 'human_time'
     ];
 
-    public function writer()
+    protected static function booted(): void
+    {
+        static::creating(function (self $book): void {
+            if (empty($book->section)) {
+                $book->section = self::SECTION_WRITER;
+            }
+        });
+    }
+
+    public function writer(): BelongsTo
     {
         return $this->belongsTo(Writer::class);
     }
 
-    public function contents()
+    public function contents(): HasMany
     {
-        return $this->hasMany(BookContent::class);
+        return $this->hasMany(BookContent::class, 'book_id');
+    }
+
+    public function isScholarWork(): bool
+    {
+        return $this->section === self::SECTION_SCHOLAR;
+    }
+
+    protected function displayAuthor(): Attribute
+    {
+        return Attribute::make(
+            get: fn (): string => $this->isScholarWork()
+                ? (string) ($this->author_name ?? '')
+                : (string) ($this->writer?->full_name ?? $this->author_name ?? '')
+        );
     }
 
     /**
@@ -84,8 +125,34 @@ class Book extends Model
         return self::query()->with('writer')->where('writer_id', $writer_id)->orderBy('title', 'asc')->get();
     }
 
-    public static function getBook($book_id)
+    public static function getBook($book_id): self
     {
-        return self::query()->findOrFail($book_id);
+        return self::query()->with('writer')->findOrFail($book_id);
+    }
+
+    public static function getScholarWorks(
+        ?string $search = null,
+        string $sortField = 'id',
+        string $sortDirection = 'desc',
+        int $perPage = 15
+    ): LengthAwarePaginator {
+        $allowedSortFields = ['id', 'title', 'author_name', 'views', 'downloads'];
+        $column = in_array($sortField, $allowedSortFields, true) ? $sortField : 'id';
+        $normalizedDirection = strtolower($sortDirection);
+        $direction = in_array($normalizedDirection, ['asc', 'desc'], true)
+            ? $normalizedDirection
+            : 'desc';
+
+        $query = self::query()->where('section', self::SECTION_SCHOLAR);
+        $term = $search !== null ? trim($search) : '';
+
+        if ($term !== '') {
+            $query->where(function (Builder $subQuery) use ($term): void {
+                $subQuery->where('title', 'like', "%{$term}%")
+                    ->orWhere('author_name', 'like', "%{$term}%");
+            });
+        }
+
+        return $query->orderBy($column, $direction)->paginate(max(1, $perPage));
     }
 }
