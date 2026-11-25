@@ -82,16 +82,22 @@ class ScholarWorkSiteTest extends TestCase
         ScholarWork::create([
             'title' => 'تفسیر نور',
             'author_name' => 'دکتر الف',
+            'views' => 200,
+            'downloads' => 10,
         ]);
 
         ScholarWork::create([
             'title' => 'مقاله علمی',
             'author_name' => 'شیخ نوری',
+            'views' => 50,
+            'downloads' => 300,
         ]);
 
         ScholarWork::create([
             'title' => 'رساله مستقل',
             'author_name' => 'محقق ب',
+            'views' => 100,
+            'downloads' => 50,
         ]);
 
         $searchByTitleAndAuthor = $this->get('/scholars-works?q=' . urlencode('نور'));
@@ -107,14 +113,17 @@ class ScholarWorkSiteTest extends TestCase
             ->assertDontSee('تفسیر نور')
             ->assertDontSee('مقاله علمی');
 
-        $invalidSort = $this->get('/scholars-works?sort=-hack');
-        $invalidSort->assertOk()
-            ->assertViewHas('sort', '-id')
-            ->assertSee('رساله مستقل');
+        foreach (['-hack', '-', urlencode('+'), '--id', ''] as $invalidSortValue) {
+            $this->get('/scholars-works?sort=' . $invalidSortValue)
+                ->assertOk()
+                ->assertViewHas('sort', '-id')
+                ->assertSeeInOrder(['رساله مستقل', 'مقاله علمی', 'تفسیر نور']);
+        }
 
         $arraySort = $this->get('/scholars-works?sort[]=bad');
         $arraySort->assertOk()
-            ->assertViewHas('sort', '-id');
+            ->assertViewHas('sort', '-id')
+            ->assertSeeInOrder(['رساله مستقل', 'مقاله علمی', 'تفسیر نور']);
 
         $unencodedPlusSort = $this->get('/scholars-works?sort=+author_name');
         $unencodedPlusSort->assertOk()
@@ -124,6 +133,31 @@ class ScholarWorkSiteTest extends TestCase
         $titleAsc = $this->get('/scholars-works?sort=' . urlencode('+title'));
         $titleAsc->assertOk()
             ->assertViewHas('sort', '+title')
+            ->assertSeeInOrder(['تفسیر نور', 'رساله مستقل', 'مقاله علمی']);
+
+        $this->get('/scholars-works?sort=-views')
+            ->assertOk()
+            ->assertViewHas('sort', '-views')
+            ->assertSeeInOrder(['تفسیر نور', 'رساله مستقل', 'مقاله علمی']);
+
+        $this->get('/scholars-works?sort=' . urlencode('+views'))
+            ->assertOk()
+            ->assertViewHas('sort', '+views')
+            ->assertSeeInOrder(['مقاله علمی', 'رساله مستقل', 'تفسیر نور']);
+
+        $this->get('/scholars-works?sort=views')
+            ->assertOk()
+            ->assertViewHas('sort', '+views')
+            ->assertSeeInOrder(['مقاله علمی', 'رساله مستقل', 'تفسیر نور']);
+
+        $this->get('/scholars-works?sort=-downloads')
+            ->assertOk()
+            ->assertViewHas('sort', '-downloads')
+            ->assertSeeInOrder(['مقاله علمی', 'رساله مستقل', 'تفسیر نور']);
+
+        $this->get('/scholars-works?sort=+downloads')
+            ->assertOk()
+            ->assertViewHas('sort', '+downloads')
             ->assertSeeInOrder(['تفسیر نور', 'رساله مستقل', 'مقاله علمی']);
 
         for ($i = 1; $i <= 16; $i++) {

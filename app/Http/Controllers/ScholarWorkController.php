@@ -16,29 +16,23 @@ class ScholarWorkController extends Controller
         $rawSearch = $request->query('q', '');
         $search = is_string($rawSearch) ? trim($rawSearch) : '';
 
-        $allowedSorts = [
-            '-id',
-            '+id',
-            '+title',
-            '-title',
-            '+author_name',
-            '-author_name',
-        ];
-
+        $allowedSortFields = ['id', 'title', 'author_name', 'views', 'downloads'];
         $rawSort = $request->query('sort', '-id');
-        $candidateSort = '-id';
+        $trimmedSort = is_string($rawSort) ? trim($rawSort) : '';
 
-        if (is_string($rawSort)) {
-            $trimmedSort = trim($rawSort);
+        $hasSign = str_starts_with($trimmedSort, '-') || str_starts_with($trimmedSort, '+');
+        $candidatePrefix = str_starts_with($trimmedSort, '-') ? '-' : '+';
+        $candidateField = $hasSign ? substr($trimmedSort, 1) : $trimmedSort;
 
-            $candidateSort = in_array($trimmedSort, ['id', 'title', 'author_name'], true)
-                ? '+' . $trimmedSort
-                : $trimmedSort;
+        if (! in_array($candidateField, $allowedSortFields, true)) {
+            $sort = '-id';
+            $sortDirection = 'desc';
+            $sortField = 'id';
+        } else {
+            $sort = $candidatePrefix . $candidateField;
+            $sortDirection = $candidatePrefix === '-' ? 'desc' : 'asc';
+            $sortField = $candidateField;
         }
-
-        $sort = in_array($candidateSort, $allowedSorts, true) ? $candidateSort : '-id';
-        $sortDirection = str_starts_with($sort, '-') ? 'desc' : 'asc';
-        $sortField = substr($sort, 1);
 
         $works = Book::getScholarWorks(
             $search !== '' ? $search : null,
