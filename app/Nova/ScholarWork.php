@@ -2,6 +2,7 @@
 
 namespace App\Nova;
 
+use App\Nova\Concerns\ScopesByBookSection;
 use Laravel\Nova\Fields\Boolean;
 use Laravel\Nova\Fields\File;
 use Laravel\Nova\Fields\HasMany;
@@ -13,6 +14,16 @@ use Laravel\Nova\Http\Requests\NovaRequest;
 
 class ScholarWork extends Resource
 {
+    use ScopesByBookSection;
+
+    /**
+     * Get the book section owned by this resource.
+     */
+    protected static function resourceBookSection(): string
+    {
+        return \App\Models\Book::SECTION_SCHOLAR;
+    }
+
     /**
      * The model the resource corresponds to.
      *

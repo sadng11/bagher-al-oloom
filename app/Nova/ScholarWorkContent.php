@@ -2,6 +2,7 @@
 
 namespace App\Nova;
 
+use App\Nova\Concerns\ScopesByBookSection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Laravel\Nova\Fields\BelongsTo;
@@ -12,6 +13,31 @@ use Laravel\Nova\Http\Requests\NovaRequest;
 
 class ScholarWorkContent extends Resource
 {
+    use ScopesByBookSection;
+
+    /**
+     * The relationships that should be eager loaded when performing an index query.
+     *
+     * @var array
+     */
+    public static $with = ['book'];
+
+    /**
+     * Get the book section owned by this resource.
+     */
+    protected static function resourceBookSection(): string
+    {
+        return \App\Models\Book::SECTION_SCHOLAR;
+    }
+
+    /**
+     * Determine whether the resource scopes via the parent book relation.
+     */
+    protected static function scopesThroughBookRelation(): bool
+    {
+        return true;
+    }
+
     /**
      * The model the resource corresponds to.
      *

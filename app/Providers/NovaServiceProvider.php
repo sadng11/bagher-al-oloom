@@ -16,6 +16,7 @@ use App\Observers\BookObserver;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Gate;
+use Laravel\Nova\Contracts\QueryBuilder;
 use Laravel\Nova\Menu\Menu;
 use Laravel\Nova\Menu\MenuGroup;
 use Laravel\Nova\Menu\MenuItem;
@@ -34,6 +35,9 @@ class   NovaServiceProvider extends NovaApplicationServiceProvider
     public function boot()
     {
         parent::boot();
+        $this->app->bind(QueryBuilder::class, function ($app, $parameters) {
+            return new \App\Nova\Query\Builder(...$parameters);
+        });
         Nova::enableRTL();
 //        Nova::withBreadcrumbs();
         Observable::make(Book::class, BookObserver::class);

@@ -149,6 +149,123 @@ class NovaScholarWorkTest extends TestCase
         $this->assertNotContains($scholarWork->id, $associatableBookIds);
     }
 
+    public function test_nova_book_blocks_cross_section_detail_edit_update_and_delete_for_scholar_works(): void
+    {
+        $this->actingAsNovaUser();
+        $request = $this->bootNova();
+
+        $writer = Writer::create(['name' => 'علامه', 'nickname' => 'امینی']);
+        $writerBook = Book::create([
+            'writer_id' => $writer->id,
+            'title' => 'الغدیر',
+        ]);
+        $scholarWork = ScholarWork::create([
+            'title' => 'رساله تخصصی',
+            'author_name' => 'آیت‌الله محقق',
+        ]);
+
+        $this->assertSame([$writerBook->id], NovaBook::detailQuery($request, Book::query())->pluck('id')->all());
+        $this->assertSame([$writerBook->id], NovaBook::editQuery($request, Book::query())->pluck('id')->all());
+
+        $this->get('/manage/resources/books/' . $scholarWork->id)->assertNotFound();
+        $this->get('/manage/resources/books/' . $scholarWork->id . '/edit')->assertNotFound();
+        $this->getJson('/nova-api/books/' . $scholarWork->id)->assertNotFound();
+        $this->getJson('/nova-api/books/' . $scholarWork->id . '/update-fields')->assertNotFound();
+
+        $this->putJson('/nova-api/books/' . $scholarWork->id, [
+            'title' => 'تغییر غیرمجاز',
+            'writer' => $writer->id,
+        ])->assertNotFound();
+
+        $scholarWork->refresh();
+        $this->assertSame('رساله تخصصی', $scholarWork->title);
+        $this->assertSame(Book::SECTION_SCHOLAR, $scholarWork->section);
+        $this->assertNull($scholarWork->writer_id);
+
+        $this->deleteJson('/nova-api/books?resources[]=' . $scholarWork->id)->assertOk();
+        $this->assertDatabaseHas('books', [
+            'id' => $scholarWork->id,
+            'section' => Book::SECTION_SCHOLAR,
+        ]);
+
+        $this->getJson('/nova-api/books/' . $writerBook->id)->assertOk();
+        $this->getJson('/nova-api/books/' . $writerBook->id . '/update-fields')->assertOk();
+        $this->putJson('/nova-api/books/' . $writerBook->id, [
+            'title' => 'الغدیر فی الکتاب و السنه',
+            'writer' => $writer->id,
+        ])->assertOk();
+        $this->assertSame('الغدیر فی الکتاب و السنه', $writerBook->fresh()->title);
+
+        $this->getJson('/nova-api/scholar-works/' . $writerBook->id)->assertNotFound();
+        $this->putJson('/nova-api/scholar-works/' . $writerBook->id, [
+            'title' => 'تغییر غیرمجاز کتاب نویسنده',
+            'author_name' => 'محقق جعلی',
+        ])->assertNotFound();
+        $this->assertSame(Book::SECTION_WRITER, $writerBook->fresh()->section);
+    }
+
+    public function test_nova_book_content_blocks_cross_section_detail_edit_relatable_update_and_delete(): void
+    {
+        $this->actingAsNovaUser();
+        $request = $this->bootNova();
+
+        $writer = Writer::create(['name' => 'شیخ', 'nickname' => 'مفید']);
+        $writerBook = Book::create([
+            'writer_id' => $writer->id,
+            'title' => 'الارشاد',
+        ]);
+        $writerContent = BookContent::create([
+            'book_id' => $writerBook->id,
+            'content' => '<p>متن کتاب نویسنده</p>',
+        ]);
+
+        $scholarWork = ScholarWork::create([
+            'title' => 'مقاله پژوهشی',
+            'author_name' => 'استاد محقق',
+        ]);
+        $scholarContent = $scholarWork->contents()->create([
+            'content' => '<p>متن اثر محقق</p>',
+        ]);
+
+        $this->assertSame([$writerContent->id], NovaBookContent::detailQuery($request, BookContent::query())->pluck('id')->all());
+        $this->assertSame([$writerContent->id], NovaBookContent::editQuery($request, BookContent::query())->pluck('id')->all());
+        $this->assertSame([$writerContent->id], NovaBookContent::relatableQuery($request, BookContent::query())->pluck('id')->all());
+
+        $this->get('/manage/resources/book-contents/' . $scholarContent->id)->assertNotFound();
+        $this->get('/manage/resources/book-contents/' . $scholarContent->id . '/edit')->assertNotFound();
+        $this->getJson('/nova-api/book-contents/' . $scholarContent->id)->assertNotFound();
+        $this->getJson('/nova-api/book-contents/' . $scholarContent->id . '/update-fields')->assertNotFound();
+
+        $this->putJson('/nova-api/book-contents/' . $scholarContent->id, [
+            'book' => $writerBook->id,
+            'content' => '<p>انتقال غیرمجاز محتوا</p>',
+        ])->assertNotFound();
+
+        $scholarContent->refresh();
+        $this->assertSame($scholarWork->id, $scholarContent->book_id);
+        $this->assertSame('<p>متن اثر محقق</p>', $scholarContent->content);
+
+        $this->deleteJson('/nova-api/book-contents?resources[]=' . $scholarContent->id)->assertOk();
+        $this->assertDatabaseHas('book_contents', [
+            'id' => $scholarContent->id,
+            'book_id' => $scholarWork->id,
+        ]);
+
+        $this->getJson('/nova-api/book-contents/' . $writerContent->id)->assertOk();
+        $this->putJson('/nova-api/book-contents/' . $writerContent->id, [
+            'book' => $writerBook->id,
+            'content' => '<p>متن ویرایش‌شده کتاب</p>',
+        ])->assertOk();
+        $this->assertSame('<p>متن ویرایش‌شده کتاب</p>', $writerContent->fresh()->content);
+
+        $this->getJson('/nova-api/scholar-work-contents/' . $writerContent->id)->assertNotFound();
+        $this->putJson('/nova-api/scholar-work-contents/' . $writerContent->id, [
+            'scholarWork' => $scholarWork->id,
+            'content' => '<p>انتقال غیرمجاز به آثار</p>',
+        ])->assertNotFound();
+        $this->assertSame($writerBook->id, $writerContent->fresh()->book_id);
+    }
+
     public function test_nova_scholar_work_index_query_and_fields(): void
     {
         $this->actingAsNovaUser();

@@ -2,6 +2,7 @@
 
 namespace App\Nova;
 
+use App\Nova\Concerns\ScopesByBookSection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Laravel\Nova\Fields\BelongsTo;
@@ -12,6 +13,31 @@ use Laravel\Nova\Http\Requests\NovaRequest;
 
 class BookContent extends Resource
 {
+    use ScopesByBookSection;
+
+    /**
+     * The relationships that should be eager loaded when performing an index query.
+     *
+     * @var array
+     */
+    public static $with = ['book'];
+
+    /**
+     * Get the book section owned by this resource.
+     */
+    protected static function resourceBookSection(): string
+    {
+        return \App\Models\Book::SECTION_WRITER;
+    }
+
+    /**
+     * Determine whether the resource scopes via the parent book relation.
+     */
+    protected static function scopesThroughBookRelation(): bool
+    {
+        return true;
+    }
+
     /**
      * The model the resource corresponds to.
      *
@@ -88,20 +114,6 @@ class BookContent extends Resource
     public static function singularLabel()
     {
         return __('Book Content');
-    }
-
-    /**
-     * Build an "index" query for the given resource.
-     *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public static function indexQuery(NovaRequest $request, $query)
-    {
-        return $query->whereHas('book', function ($bookQuery) {
-            $bookQuery->where($bookQuery->qualifyColumn('section'), \App\Models\Book::SECTION_WRITER);
-        });
     }
 
     /**

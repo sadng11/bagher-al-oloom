@@ -3,6 +3,7 @@
 namespace App\Nova;
 
 use App\Models\BookStatus;
+use App\Nova\Concerns\ScopesByBookSection;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\Boolean;
@@ -18,6 +19,16 @@ use Laravel\Nova\Http\Requests\NovaRequest;
 
 class Book extends Resource
 {
+    use ScopesByBookSection;
+
+    /**
+     * Get the book section owned by this resource.
+     */
+    protected static function resourceBookSection(): string
+    {
+        return \App\Models\Book::SECTION_WRITER;
+    }
+
     /**
      * The model the resource corresponds to.
      *
@@ -59,30 +70,6 @@ class Book extends Resource
     public static function singularLabel()
     {
         return __('Book');
-    }
-
-    /**
-     * Build an "index" query for the given resource.
-     *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public static function indexQuery(NovaRequest $request, $query)
-    {
-        return $query->where($query->qualifyColumn('section'), \App\Models\Book::SECTION_WRITER);
-    }
-
-    /**
-     * Build a "relatable" query for the given resource.
-     *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public static function relatableQuery(NovaRequest $request, $query)
-    {
-        return $query->where($query->qualifyColumn('section'), \App\Models\Book::SECTION_WRITER);
     }
 
     /**
