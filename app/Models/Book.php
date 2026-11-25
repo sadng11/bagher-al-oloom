@@ -21,7 +21,7 @@ class Book extends Model
 
     public function contents()
     {
-        return $this->hasMany(BookContent::class)->get();
+        return $this->hasMany(BookContent::class);
     }
 
     /**

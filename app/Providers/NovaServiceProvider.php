@@ -55,6 +55,7 @@ class   NovaServiceProvider extends NovaApplicationServiceProvider
 
                 MenuSection::make(__('Content & Book'), [
                     MenuItem::resource(\App\Nova\Book::class),
+                    MenuItem::resource(\App\Nova\BookContent::class),
                     MenuItem::resource(Writer::class),
                     MenuItem::resource(SoundCategory::class),
                     MenuItem::resource(Sound::class),

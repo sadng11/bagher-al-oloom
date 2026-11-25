@@ -2,12 +2,12 @@
 
 namespace App\Nova;
 
-use App\Models\BookContent;
 use App\Models\BookStatus;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\Boolean;
 use Laravel\Nova\Fields\File;
+use Laravel\Nova\Fields\HasMany;
 use Laravel\Nova\Fields\HasOne;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Number;
@@ -89,7 +89,7 @@ class Book extends Resource
             Url::make(__('Pdf File Address'), 'pdf_file')->hideFromIndex(),
 //            File::make(__('Pdf File'), 'pdf_file')->disk('pdf')->acceptedTypes('.pdf'),
 //            Text::make(__('PdfBookStatus'), 'status')->asHtml()->exceptOnForms(),
-            Text::make(__('Content'), 'content')->asHtml()->onlyOnDetail(),
+            HasMany::make(__('Book Contents'), 'contents', BookContent::class),
         ];
     }
 
