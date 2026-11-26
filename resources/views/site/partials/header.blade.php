@@ -30,6 +30,9 @@
                             العلوم</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="{{route('images.index')}}">تصاویر</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="{{route('content',['type'=>'about_us'])}}">درباره ما</a>
                     </li>
                     <li class="nav-item">
@@ -74,6 +77,9 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{route('sound_category',['sort'=>'-id'])}}">مدرس مهدیه باقر
                             العلوم</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{route('images.index')}}">تصاویر</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{route('contact')}}">تماس با ما</a>

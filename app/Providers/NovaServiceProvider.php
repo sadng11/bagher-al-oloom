@@ -7,6 +7,8 @@ use App\Nova\BottomText;
 use App\Nova\Dashboards\Main;
 use App\Nova\Dashboards\UserInsights;
 use App\Nova\ImageSlider;
+use App\Nova\Photo;
+use App\Nova\PhotoAlbum;
 use App\Nova\SiteContent;
 use App\Nova\Sound;
 use App\Nova\SoundCategory;
@@ -43,6 +45,10 @@ class   NovaServiceProvider extends NovaApplicationServiceProvider
         Observable::make(Book::class, BookObserver::class);
         Observable::make(\App\Models\ScholarWork::class, BookObserver::class);
 
+        Nova::serving(function () {
+            Nova::script('album-photos', public_path('admin/js/album-photos.js'));
+        });
+
         Nova::footer(function ($request) {
             return Blade::render('
             <p class="text-center">Powered by Sahel Group · v{!! $version !!} &copy; {!! $year !!}</p>
@@ -66,6 +72,11 @@ class   NovaServiceProvider extends NovaApplicationServiceProvider
                     MenuItem::resource(SoundCategory::class),
                     MenuItem::resource(Sound::class),
                 ])->icon('document-text')->collapsable(),
+
+                MenuSection::make(__('Images'), [
+                    MenuItem::resource(PhotoAlbum::class),
+                    MenuItem::resource(Photo::class),
+                ])->icon('photograph')->collapsable(),
 
                 MenuSection::make(__('Web Site'), [
                     MenuItem::resource(SiteContent::class),

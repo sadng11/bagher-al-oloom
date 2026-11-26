@@ -5,6 +5,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ContentController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LibraryController;
+use App\Http\Controllers\PhotoGalleryController;
 use App\Http\Controllers\ScholarWorkController;
 use App\Http\Controllers\SoundController;
 use App\Services\SearchHighlighter;
@@ -35,6 +36,8 @@ Route::get('scholars-works', [ScholarWorkController::class, 'index'])->name('sch
 Route::get('sound/category/', [SoundController::class, 'index'])->name('sound_category');
 Route::get('sound/{id}', [SoundController::class, 'show'])->name('sound.detail');
 Route::get('sound/category/{id}', [SoundController::class, 'show_category'])->name('sound_category.detail');
+Route::get('images', [PhotoGalleryController::class, 'index'])->name('images.index');
+Route::get('images/{id}', [PhotoGalleryController::class, 'show'])->whereNumber('id')->name('images.show');
 Route::get('contact', [ContactController::class, 'index'])->name('contact');
 Route::post('contact', [ContactController::class, 'contact'])->name('contact.post');
 

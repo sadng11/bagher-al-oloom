@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Photo;
+use App\Models\PhotoAlbum;
+use App\Observers\PhotoAlbumObserver;
+use App\Observers\PhotoObserver;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 
@@ -31,6 +35,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         error_reporting(E_ERROR);
+        Photo::observe(PhotoObserver::class);
+        PhotoAlbum::observe(PhotoAlbumObserver::class);
         Queue::failing(function (JobFailed $event) {
             Log::info($event->connectionName);
             // $event->connectionName
