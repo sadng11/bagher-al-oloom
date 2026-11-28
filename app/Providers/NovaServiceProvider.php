@@ -9,6 +9,8 @@ use App\Nova\Dashboards\UserInsights;
 use App\Nova\ImageSlider;
 use App\Nova\Photo;
 use App\Nova\PhotoAlbum;
+use App\Nova\ReligiousPractice;
+use App\Nova\ReligiousSection;
 use App\Nova\SiteContent;
 use App\Nova\Sound;
 use App\Nova\SoundCategory;
@@ -47,6 +49,7 @@ class   NovaServiceProvider extends NovaApplicationServiceProvider
 
         Nova::serving(function () {
             Nova::script('album-photos', public_path('admin/js/album-photos.js'));
+            Nova::script('religious-section-group', public_path('admin/js/religious-section-group.js'));
         });
 
         Nova::footer(function ($request) {
@@ -77,6 +80,11 @@ class   NovaServiceProvider extends NovaApplicationServiceProvider
                     MenuItem::resource(PhotoAlbum::class),
                     MenuItem::resource(Photo::class),
                 ])->icon('photograph')->collapsable(),
+
+                MenuSection::make(__('Religious Practices'), [
+                    MenuItem::resource(ReligiousPractice::class),
+                    MenuItem::resource(ReligiousSection::class),
+                ])->icon('calendar')->collapsable(),
 
                 MenuSection::make(__('Web Site'), [
                     MenuItem::resource(SiteContent::class),

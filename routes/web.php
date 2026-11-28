@@ -6,6 +6,7 @@ use App\Http\Controllers\ContentController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LibraryController;
 use App\Http\Controllers\PhotoGalleryController;
+use App\Http\Controllers\ReligiousPracticeController;
 use App\Http\Controllers\ScholarWorkController;
 use App\Http\Controllers\SoundController;
 use App\Services\SearchHighlighter;
@@ -38,6 +39,11 @@ Route::get('sound/{id}', [SoundController::class, 'show'])->name('sound.detail')
 Route::get('sound/category/{id}', [SoundController::class, 'show_category'])->name('sound_category.detail');
 Route::get('images', [PhotoGalleryController::class, 'index'])->name('images.index');
 Route::get('images/{id}', [PhotoGalleryController::class, 'show'])->whereNumber('id')->name('images.show');
+Route::get('religious-practices', [ReligiousPracticeController::class, 'index'])->name('religious_practices.index');
+Route::get('religious-practices/{section:slug}', [ReligiousPracticeController::class, 'showSection'])->name('religious_practices.section');
+Route::get('religious-practices/{section:slug}/{day}', [ReligiousPracticeController::class, 'showDay'])
+    ->where('day', '[1-9]|[12][0-9]|30')
+    ->name('religious_practices.day');
 Route::get('contact', [ContactController::class, 'index'])->name('contact');
 Route::post('contact', [ContactController::class, 'contact'])->name('contact.post');
 

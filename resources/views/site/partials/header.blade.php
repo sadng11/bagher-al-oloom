@@ -20,6 +20,9 @@
                             دین</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="{{route('religious_practices.index')}}">اعمال شرعی</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="{{route('library',['sort'=>'-id'])}}">کتابخانه</a>
                     </li>
                     <li class="nav-item">
@@ -67,6 +70,9 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{route('content',['type'=>'advices'])}}">توصیه های مهم از بزرگان
                             دین</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{route('religious_practices.index')}}">اعمال شرعی</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{route('library',['sort'=>'-id'])}}">کتابخانه</a>
